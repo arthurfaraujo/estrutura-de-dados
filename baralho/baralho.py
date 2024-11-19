@@ -14,6 +14,7 @@ class Card:
         return f'{self.figure} of {self.suit}'
     
 class Deck:
+    
     def __init__(self) -> None:
         self.cards: list[Card] = []
         for suit in range(4):
@@ -28,11 +29,11 @@ class Deck:
         
         self.shuffle()
 
-        decks = [[Card(0, 0)] * quantity for _ in range(players)]
+        decks: list[list[Card]] = [[] * players]
 
-        for i in range(quantity):
+        for _ in range(quantity):
             for player in range(players):
-                decks[player][i] = self.cards.pop()
+                decks[player].append(self.cards.pop())
 
         return decks
     
@@ -43,6 +44,31 @@ class Deck:
             string += card.__str__() + '\n'
 
         return string
+
+class Player:
+    
+    def __init__(self, name: str, cards: list[Card]):
+        self.name = name
+        self.cards = cards
+
+    def play(self) -> Card:
+        return self.cards.pop(0)
+    
+    def receive(self, cards: list[Card]) -> None:
+        for card in cards:
+          self.cards.append(card)
+            
+class Game:
+    
+    def __init__(self, players: list[Player], deck: Deck):
+        self.players = players
+        self.deck = deck
+
+    def give_cards(self) -> None:
+        hands = deck.distribute(len(self.players))
+        
+        for player in self.players:
+            player.cards = hands.pop()
 
 if __name__ == '__main__':
     deck = Deck()
