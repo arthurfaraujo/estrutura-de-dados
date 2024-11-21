@@ -13,6 +13,9 @@ class Card:
     def __str__(self) -> str:
         return f'{self.figure} of {self.suit}'
     
+    def __repr__(self) -> str:
+        return f'{self.figure} of {self.suit}'
+    
 class Deck:
     
     def __init__(self) -> None:
@@ -63,18 +66,36 @@ class Game:
     def __init__(self, players: list[Player], deck: Deck):
         self.players = players
         self.deck = deck
+        self.round_cards: list[Card] = []
 
-    def give_cards(self) -> None:
-        hands = deck.distribute(len(self.players))
+    def next_round(self) -> Player | list[Player]:
+        win = self.check_win()
+        if len(win) == 1:
+            return win[0]
+
+        self.round_cards.append(self.players[0].play())
+        self.round_cards.append(self.players[1].play())
+
+        if (self.round_cards[0].value > self.round_cards[1].value):
+            self.players[0].receive(self.round_cards)
+            return self.players[0]
         
-        for player in self.players:
-            player.cards = hands.pop()
+        elif (self.round_cards[1].value > self.round_cards[0].value):
+            self.players[1].receive(self.round_cards)
+            return self.players[1]
+        
+        return self.players
+    
+    def check_win(self) -> list[Player]:
+        winners = []
 
+        for player in self.players:
+            if len(player.cards):
+                winners.append(player)
+
+        return winners
+        
 if __name__ == '__main__':
     deck = Deck()
-    print(deck)
-    decks = deck.distribute(4)
-
-    for player, hand in enumerate(decks):
-        print(f'player {player + 1}: {[str(card) for card in hand]}')
-
+    hands = deck.distribute(2)
+    players = [Player('Arthur', hands.pop()), Player('Bruna', hands.pop())]
