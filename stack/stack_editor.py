@@ -3,7 +3,20 @@ from stack.linked_stack import Stack
 from stack.stack_error import StackError
 import os
 
-
+def decToBin(num: int) -> None:
+    bins = Stack()
+    
+    while True:
+      if num // 2 == 1:
+        bins.push(num % 2)
+        bins.push(1)
+        break
+      else:
+        bins.push(num % 2)
+        num = num // 2
+        
+    print(bins)
+    
 class EditorError(Exception):
     def __init__(self, msg: str) -> None:
         super().__init__(msg)
@@ -132,6 +145,9 @@ class StackEditor:
             case 'm':
                 self.selected = int(
                     input(f'Pilha desejada de 1 a {len(self.__stacks)}: '))
+            
+            case 'b':
+                decToBin(int(input('Inteiro para converter: ')))
                                 
             case 's':
                 choice = input('Deseja mesmo sair (s ou n)? ')
