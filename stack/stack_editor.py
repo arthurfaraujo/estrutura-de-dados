@@ -1,30 +1,43 @@
 from typing import Any
 from stack.linked_stack import Stack
+from stack.stack_error import StackError
 import os
+
 
 class EditorError(Exception):
     def __init__(self, msg: str) -> None:
-      super().__init__(msg)
+        super().__init__(msg)
+
 
 class StackEditor:
     def __init__(self) -> None:
         self.__stacks: list[Stack] = [Stack()]
         self.__selected: int = 0
-    
+
     @property
     def selected(self) -> int:
         return self.__selected
-    
+
     @selected.setter
     def selected(self, value: int) -> None:
         if value > 0 and value <= len(self.__stacks):
             self.__selected = value - 1
         else:
-          raise EditorError('invalid index')        
+            raise EditorError('invalid index')
+
+    def get_stack(self, index: int) -> Stack:
+        index -= 1
+        if index >= 0 and index < len(self.__stacks):
+            return self.__stacks[index]
+        else:
+            raise IndexError('invalid index')
+
+    def get_selected_stack(self) -> Stack:
+        return self.__stacks[self.__selected]
 
     def __create(self) -> None:
         self.__stacks.append(Stack())
-      
+
     def __clear(self) -> None:
         os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -56,31 +69,81 @@ class StackEditor:
             print('(s) Sair')
             print('=' * 35)
 
-            escolha = input("Insira sua opção: ").strip()
+            option = input("Insira sua opção: ").strip()
             
-            match escolha:
-              case 'e':
-                self.__stacks[self.__selected].push(int(input('Digite o valor do novo nó: ')))
-              case 'd':
-                print('Valor removido: ', self.__stacks[self.__selected].pop())
-                input('Continuar? (enter)')
-              case 't':
-                print('Tamanho da pilha: ', len(self.__stacks[self.__selected]))
-                input('Continuar? (enter)')
-              case 'o':
-                print('Topo da pilha: ', self.__stacks[self.__selected].peek())
-                input('Continuar? (enter)')
-              case 'v':
-                print('Pilha vazia? ', 'Sim' if self.__stacks[self.__selected].is_empty() else 'Não')
-                input('Continuar? (enter)')
-              case 'r':
+            try:                
+                self.resolve_option(option)
+            except StackError as se:
+                print('Erro: ', se)
+            except EditorError as ee:
+                print('Erro: ', ee)
+            except ValueError as ve:
+                print('Erro: ', ve)
+                
+            input('Pressione enter: ')
+
+    def resolve_option(self, option: str) -> None:
+        match option:
+            case 'e':
+                self.get_selected_stack().push(
+                    int(input('Digite o valor do novo nó: ')))
+
+            case 'd':
+                print('Valor removido: ',
+                      self.get_selected_stack().pop())
+
+            case 't':
+                print('Tamanho da pilha: ', len(
+                    self.get_selected_stack()))
+
+            case 'o':
+                print('Topo da pilha: ',
+                      self.get_selected_stack().peek())
+
+            case 'v':
+                print(
+                    'Pilha vazia? ', 'Sim' if self.get_selected_stack().is_empty() else 'Não')
+
+            case 'r':
                 self.__create()
-              case 'm':
-                self.selected = int(input(f'Pilha desejada de 1 a {len(self.__stacks)}: '))
-              case _:
+
+            case 'n':
+                self.get_selected_stack().invert()
+
+            case 'z':
+                self.get_selected_stack().empty()
+
+            case 'c':
+                print(
+                    'Como desejar concatenar:\n(a) Alterando a selecionada\n(g) Gerando uma nova')
+
+                if (choice := input("Insira sua opção: ").strip()) == 'a':
+                    stack2 = self.get_stack(
+                        int(input(f'Segunda pilha para concatenar de 1 a {len(self.__stacks)}: ')))
+                    self.get_selected_stack().concat(stack2)
+
+                elif choice == 'g':
+                    stack2 = self.get_stack(
+                        int(input(f'Segunda pilha para concatenar de 1 a {len(self.__stacks)}: ')))
+                    new_stack = Stack.join(self.get_selected_stack(), stack2)
+                    print('Pilha concatenada: ', new_stack)
+                    self.__stacks.append(new_stack)
+
+            case 'm':
+                self.selected = int(
+                    input(f'Pilha desejada de 1 a {len(self.__stacks)}: '))
+                                
+            case 's':
+                choice = input('Deseja mesmo sair (s ou n)? ')
+                
+                if choice == 's':
+                    self.__clear()
+                    exit()
+                  
+                if choice != 'n':
+                    raise EditorError('invalid option')
+            case _:
                 raise EditorError('invalid option')
-            
-            
 
     def __size(self) -> int:
         return len(self.__stacks)
