@@ -1,22 +1,26 @@
 from typing import Any
 from stack.linked_stack import Stack
-from stack.stack_error import StackError
+from stack.linked_stack import StackError
 import os
+
 
 def decToBin(num: int) -> None:
     bins = Stack()
-    
+
     while True:
-      if num // 2 == 1:
-        bins.push(num % 2)
-        bins.push(1)
-        break
-      else:
-        bins.push(num % 2)
-        num = num // 2
-        
-    print(bins)
-    
+        if num // 2 == 1:
+            bins.push(num % 2)
+            bins.push(1)
+            break
+        else:
+            bins.push(num % 2)
+            num = num // 2
+
+    for b in bins:
+        print(b, end='')
+    print()
+
+
 class EditorError(Exception):
     def __init__(self, msg: str) -> None:
         super().__init__(msg)
@@ -78,13 +82,15 @@ class StackEditor:
             print('(z) Esvaziar pilha')
             print('(c) Concatenar pilhas')
             print('(m) Escolher outra pilha')
-            print('(n) Conversão dec/bin pilha')
+            print('(b) Conversão dec/bin pilha')
+            print('(i) Inverter string usando pilha')
+            print('(p) Verificar palíndromo')
             print('(s) Sair')
             print('=' * 35)
 
             option = input("Insira sua opção: ").strip()
-            
-            try:                
+
+            try:
                 self.resolve_option(option)
             except StackError as se:
                 print('Erro: ', se)
@@ -92,7 +98,7 @@ class StackEditor:
                 print('Erro: ', ee)
             except ValueError as ve:
                 print('Erro: ', ve)
-                
+
             input('Pressione enter: ')
 
     def resolve_option(self, option: str) -> None:
@@ -145,19 +151,44 @@ class StackEditor:
             case 'm':
                 self.selected = int(
                     input(f'Pilha desejada de 1 a {len(self.__stacks)}: '))
-            
+
             case 'b':
                 decToBin(int(input('Inteiro para converter: ')))
-                                
+
             case 's':
                 choice = input('Deseja mesmo sair (s ou n)? ')
-                
+
                 if choice == 's':
                     self.__clear()
                     exit()
-                  
+
                 if choice != 'n':
                     raise EditorError('invalid option')
+
+            case 'i':
+                string = input('String para inverter: ')
+                stack = Stack()
+
+                for char in string:
+                    stack.push(char)
+
+                for char in stack:
+                    print(char, end='')
+                print()
+
+            case 'p':
+                user_string = ''.join([s for s in input('String para testar palídromo: ') if s.isalpha()])
+                inverted = Stack()
+
+                for char in user_string.lower():
+                    if char.isalpha():
+                        inverted.push(char)
+
+                string = ''.join([s for s in inverted])
+
+                print(f'{user_string} {'é palíndromo' if string ==
+                      user_string else 'não é palíndromo'}')
+
             case _:
                 raise EditorError('invalid option')
 

@@ -1,19 +1,20 @@
 # Brabor
-from typing import Optional
-from stack.stack_error import StackError
-
+from typing import Optional, Any
+class StackError(Exception):
+    def __init__(self, msg: str):
+        super().__init__(msg)
 
 class Node:
-    def __init__(self, value: int, next: Optional['Node'] = None) -> None:
+    def __init__(self, value: Any, next: Optional['Node'] = None) -> None:
         self.__value = value
         self.__next = next
 
     @property
-    def value(self) -> int:
+    def value(self) -> Any:
         return self.__value
 
     @value.setter
-    def value(self, value: int) -> None:
+    def value(self, value: Any) -> None:
         self.__value = value
 
     @property
@@ -35,7 +36,7 @@ class StackIterator:
     def __init__(self, head: Node | None):
         self.__current: Node | None = head
 
-    def __next__(self) -> int:
+    def __next__(self) -> Any:
         if not self.__current:
             raise StopIteration
 
@@ -79,7 +80,7 @@ class Stack:
 
         return joined
 
-    def push(self, value: int) -> None:
+    def push(self, value: Any) -> None:
         new_node = Node(value)
         new_node.next = self.__head
         self.__head = new_node
@@ -103,7 +104,7 @@ class Stack:
         return self.__head
 
     def is_empty(self) -> bool:
-        return self.__head is None
+        return self.__size == 0
 
     def invert(self) -> None:
         if self.is_empty():
